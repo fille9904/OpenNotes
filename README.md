@@ -1,53 +1,36 @@
-# Goodnotes Study Platform
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A private study platform that automatically imports PDF backups from Goodnotes through Google Drive.
+## Getting Started
 
-## Main goal
+First, run the development server:
 
-The application should organize notes by:
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-* Course
-* Lecture
-* Date
-* Topic
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Planned workflow
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Goodnotes → Google Drive automatic backup → Website import → Course library
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Planned features
+## Learn More
 
-### Version 1
+To learn more about Next.js, take a look at the following resources:
 
-* User authentication
-* Course dashboard
-* Google Drive connection
-* Automatic PDF import
-* PDF viewer
-* Search by course, title and date
-* Private notes
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Later versions
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-* Handwriting OCR
-* AI-generated summaries
-* Ask questions about notes
-* Flashcards
-* Quizzes
-* Semantic search
+## Deploy on Vercel
 
-## Technology
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-* Next.js
-* TypeScript
-* Tailwind CSS
-* Supabase
-* Google Drive API
-* Vercel
-* OpenAI API
-
-## Privacy
-
-The GitHub repository contains application code only.
-
-Personal notes, API keys and environment variables must never be committed to GitHub.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
