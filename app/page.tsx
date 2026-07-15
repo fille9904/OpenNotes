@@ -1,65 +1,40 @@
-import Image from "next/image";
+import StudyAssistant from "@/components/study-assistant";
+
+const courses = ["SF1546", "DD1310", "SG1133", "SF1626", "SF1624", "SA1007"];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <header className="site-header">
+        <a className="brand" href="#top">Open<span>Notes</span></a>
+        <nav><a href="#courses">Courses</a><a href="#assistant">Ask AI</a></nav>
+      </header>
+
+      <section className="hero" id="top">
+        <p className="eyebrow">Your KTH study library</p>
+        <h1>Lecture notes,<br /><em>ready to explore.</em></h1>
+        <p className="intro">Goodnotes backups organized by course, with an assistant that searches your material before looking beyond it.</p>
+        <a className="primary-button" href="#assistant">Ask your notes <span>↓</span></a>
+      </section>
+
+      <section className="courses" id="courses">
+        <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Synced from KTH / År 1</p></div>
+        <div className="course-grid">
+          {courses.map((course) => <article className="course-card" key={course}><span>Course</span><h3>{course}</h3><p>Goodnotes PDFs and lecture material</p><div>Open course <b>→</b></div></article>)}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="assistant-section" id="assistant">
+        <div className="assistant-copy">
+          <p className="eyebrow">Study assistant</p>
+          <h2>Ask your notes.<br /><em>Explore beyond them.</em></h2>
+          <p>Answers begin with your uploaded course material. Enable online sources when you want current or complementary information.</p>
+          <div className="source-key"><span><i className="note-dot" />Your notes</span><span><i className="web-dot" />Online sources</span></div>
         </div>
-      </main>
-    </div>
+        <StudyAssistant />
+      </section>
+
+      <footer><a className="brand" href="#top">Open<span>Notes</span></a><p>Check important AI answers against your course material.</p></footer>
+    </main>
   );
 }

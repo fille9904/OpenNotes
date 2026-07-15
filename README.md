@@ -1,3 +1,13 @@
+# OpenNotes
+
+OpenNotes is a private KTH study platform that syncs Goodnotes PDF backups from Google Drive and provides a source-aware AI study assistant.
+
+## AI and Drive configuration
+
+Create an OpenAI vector store, then configure these encrypted GitHub Actions secrets: `OPENAI_API_KEY`, `OPENAI_VECTOR_STORE_ID`, and `GOOGLE_SERVICE_ACCOUNT_JSON`. Share the Goodnotes folder with the service-account email as a Viewer. The workflow indexes changed PDFs every 30 minutes and excludes `Inlämningar` and `-private` folders.
+
+Deploy on Vercel and add `OPENAI_API_KEY`, `OPENAI_VECTOR_STORE_ID`, and `OPENAI_MODEL` as environment variables there. Never add credentials to source files.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
