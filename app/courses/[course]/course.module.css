@@ -1,0 +1,10 @@
+.hero { padding: 80px max(8vw, 24px); background: linear-gradient(120deg, #eef1e7, transparent); }
+.hero h1 { font-size: clamp(68px, 10vw, 130px); margin: 12px 0; }
+.hero > p:last-child { color: #68736d; font-size: 18px; }
+.back { display: inline-block; margin-bottom: 50px; color: #68736d; font-size: 13px; text-decoration: none; }
+.notes { padding: 80px max(8vw, 24px); min-height: 420px; }
+.empty { padding: 45px; background: white; border: 1px solid #dce0dc; border-radius: 6px; max-width: 720px; }
+.empty > span { color: #2d654c; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.empty h3 { font-size: 30px; margin: 18px 0 10px; }
+.empty p { color: #68736d; line-height: 1.7; }
+.empty a { display: inline-block; margin-top: 20px; color: #2d654c; font-size: 13px; }

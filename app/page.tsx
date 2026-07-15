@@ -1,6 +1,6 @@
 import StudyAssistant from "@/components/study-assistant";
-
-const courses = ["SF1546", "DD1310", "SG1133", "SF1626", "SF1624", "SA1007"];
+import Link from "next/link";
+import { courses } from "@/lib/courses";
 
 export default function Home() {
   return (
@@ -20,7 +20,7 @@ export default function Home() {
       <section className="courses" id="courses">
         <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Synced from KTH / År 1</p></div>
         <div className="course-grid">
-          {courses.map((course) => <article className="course-card" key={course}><span>Course</span><h3>{course}</h3><p>Goodnotes PDFs and lecture material</p><div>Open course <b>→</b></div></article>)}
+          {courses.map((course) => <Link className="course-card" href={`/courses/${course}`} key={course}><span>Course</span><h3>{course}</h3><p>Goodnotes PDFs and lecture material</p><div>Open course <b>→</b></div></Link>)}
         </div>
       </section>
 
