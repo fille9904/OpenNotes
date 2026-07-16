@@ -18,10 +18,13 @@ export default function Home() {
       </section>
 
       <section className="courses" id="courses">
-        <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Synced from KTH / År 1</p></div>
-        <div className="course-grid">
-          {courses.map((course) => <Link className="course-card" href={`/courses/${course}`} key={course}><span>Course</span><h3>{course}</h3><p>Goodnotes PDFs and lecture material</p><div>Open course <b>→</b></div></Link>)}
-        </div>
+        <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Synced from KTH / År 1–2</p></div>
+        {[1, 2].map((year) => <div className="course-year" key={year}>
+          <h3>År {year}</h3>
+          <div className="course-grid">
+            {courses.filter((course) => course.year === year).map((course) => <Link className="course-card" href={`/courses/${course.code}?year=${course.year}`} key={`${course.year}-${course.code}`}><span>År {course.year}</span><h3>{course.code}</h3><p>{course.name || "Goodnotes PDFs and lecture material"}</p><div>Open course <b>→</b></div></Link>)}
+          </div>
+        </div>)}
       </section>
 
       <section className="assistant-section" id="assistant">
