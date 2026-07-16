@@ -26,20 +26,27 @@ async function walk(folderId: string, path: string[] = []): Promise<DrivePdf[]> 
   return documents;
 }
 
-const driveFiles = await walk(process.env.GOOGLE_DRIVE_FOLDER_ID!); const vectorFiles = [];
-for await (const item of openai.vectorStores.files.list(vectorStoreId, { limit: 100 })) vectorFiles.push(item);
-const byDriveId = new Map(vectorFiles.filter((file) => file.attributes?.source === "goodnotes_drive").map((file) => [String(file.attributes?.drive_file_id), file]));
-let uploaded = 0, unchanged = 0, removed = 0;
-for (const item of driveFiles) {
-  const existing = byDriveId.get(item.id);
-  if (existing?.attributes?.drive_modified_time === item.modifiedTime) { unchanged++; byDriveId.delete(item.id); continue; }
-  if (existing) { await openai.vectorStores.files.delete(existing.id, { vector_store_id: vectorStoreId }); await openai.files.delete(existing.id); }
-  const download = await drive.files.get({ fileId: item.id, alt: "media" }, { responseType: "arraybuffer" });
-  const uploadedFile = await openai.files.create({ file: await toFile(Buffer.from(download.data as ArrayBuffer), item.name), purpose: "assistants" });
-  const course = item.path.split("/").find((part) => /^[A-ZÅÄÖ]{2,4}\d{3,5}$/i.test(part)) || "Other";
-  const indexed = await openai.vectorStores.files.createAndPoll(vectorStoreId, { file_id: uploadedFile.id, attributes: { source: "goodnotes_drive", drive_file_id: item.id, drive_modified_time: item.modifiedTime, course, drive_path: item.path.slice(0, 512) } });
-  if (indexed.status !== "completed") throw new Error(`Indexing failed for ${item.path}: ${indexed.last_error?.message || indexed.status}`);
-  uploaded++; byDriveId.delete(item.id);
+async function main() {
+  const driveFiles = await walk(process.env.GOOGLE_DRIVE_FOLDER_ID!); const vectorFiles = [];
+  for await (const item of openai.vectorStores.files.list(vectorStoreId, { limit: 100 })) vectorFiles.push(item);
+  const byDriveId = new Map(vectorFiles.filter((file) => file.attributes?.source === "goodnotes_drive").map((file) => [String(file.attributes?.drive_file_id), file]));
+  let uploaded = 0, unchanged = 0, removed = 0;
+  for (const item of driveFiles) {
+    const existing = byDriveId.get(item.id);
+    if (existing?.attributes?.drive_modified_time === item.modifiedTime) { unchanged++; byDriveId.delete(item.id); continue; }
+    if (existing) { await openai.vectorStores.files.delete(existing.id, { vector_store_id: vectorStoreId }); await openai.files.delete(existing.id); }
+    const download = await drive.files.get({ fileId: item.id, alt: "media" }, { responseType: "arraybuffer" });
+    const uploadedFile = await openai.files.create({ file: await toFile(Buffer.from(download.data as ArrayBuffer), item.name), purpose: "assistants" });
+    const course = item.path.split("/").find((part) => /^[A-ZÅÄÖ]{2,4}\d{3,5}$/i.test(part)) || "Other";
+    const indexed = await openai.vectorStores.files.createAndPoll(vectorStoreId, { file_id: uploadedFile.id, attributes: { source: "goodnotes_drive", drive_file_id: item.id, drive_modified_time: item.modifiedTime, course, drive_path: item.path.slice(0, 512) } });
+    if (indexed.status !== "completed") throw new Error(`Indexing failed for ${item.path}: ${indexed.last_error?.message || indexed.status}`);
+    uploaded++; byDriveId.delete(item.id);
+  }
+  for (const stale of byDriveId.values()) { await openai.vectorStores.files.delete(stale.id, { vector_store_id: vectorStoreId }); await openai.files.delete(stale.id); removed++; }
+  console.log(`Drive sync complete: ${uploaded} indexed, ${unchanged} unchanged, ${removed} removed.`);
 }
-for (const stale of byDriveId.values()) { await openai.vectorStores.files.delete(stale.id, { vector_store_id: vectorStoreId }); await openai.files.delete(stale.id); removed++; }
-console.log(`Drive sync complete: ${uploaded} indexed, ${unchanged} unchanged, ${removed} removed.`);
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+});
