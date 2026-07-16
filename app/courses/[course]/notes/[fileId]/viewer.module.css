@@ -1,0 +1,9 @@
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+.toolbar { padding: 28px max(4vw, 24px); display: flex; align-items: end; justify-content: space-between; gap: 24px; border-bottom: 1px solid #dce0dc; background: #f7f6f1; }
+.toolbar > div > a { color: #2d654c; font-size: 13px; text-decoration: none; }
+.toolbar h1 { margin-top: 10px; font-size: clamp(34px, 5vw, 58px); line-height: 1; }
+.toolbar p { margin: 8px 0 0; color: #68736d; font-size: 12px; }
+.toolbar > a { flex: none; padding: 11px 15px; border: 1px solid #2d654c; border-radius: 4px; color: #2d654c; font-size: 13px; text-decoration: none; }
+.viewer { flex: 1; min-height: 75vh; padding: 18px; background: #d9dedb; }
+.viewer iframe { display: block; width: 100%; height: calc(100vh - 230px); min-height: 640px; border: 0; border-radius: 6px; background: white; }
+@media(max-width: 700px) { .toolbar { align-items: start; flex-direction: column; } .viewer { padding: 0; } .viewer iframe { height: calc(100vh - 250px); min-height: 520px; border-radius: 0; } }
