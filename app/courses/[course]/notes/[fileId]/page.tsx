@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { getCourse } from "@/lib/courses";
-import { listCourseNotes } from "@/lib/drive";
+import { getDriveCourse, listCourseNotes } from "@/lib/drive";
 import { notFound } from "next/navigation";
 import styles from "./viewer.module.css";
 
-export default async function NoteViewerPage({ params, searchParams }: {
+export default async function NoteViewerPage({ params }: {
   params: Promise<{ course: string; fileId: string }>;
-  searchParams: Promise<{ year?: string }>;
 }) {
-  const [{ course: code, fileId }, { year }] = await Promise.all([params, searchParams]);
+  const { course: folderId, fileId } = await params;
   if (!/^[A-Za-z0-9_-]{10,200}$/.test(fileId)) notFound();
-  const course = getCourse(code, year ? Number(year) : undefined);
+  const course = await getDriveCourse(folderId);
   if (!course) notFound();
 
   const library = await listCourseNotes(course).catch(() => null);
@@ -22,11 +20,11 @@ export default async function NoteViewerPage({ params, searchParams }: {
     <main className={styles.page}>
       <header className="site-header">
         <Link className="brand" href="/">Open<span>Notes</span></Link>
-        <nav><Link href={`/courses/${course.code}?year=${course.year}`}>Course</Link><Link href="/#assistant">Ask AI</Link></nav>
+        <nav><Link href={`/courses/${course.driveFolderId}`}>Course</Link><Link href="/#assistant">Ask AI</Link></nav>
       </header>
       <section className={styles.toolbar}>
         <div>
-          <Link href={`/courses/${course.code}?year=${course.year}`}>← {course.code}</Link>
+          <Link href={`/courses/${course.driveFolderId}`}>← {course.code}</Link>
           <h1>{note.name.replace(/\.pdf$/i, "")}</h1>
           <p>{note.path}</p>
         </div>

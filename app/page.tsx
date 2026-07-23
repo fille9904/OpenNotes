@@ -1,8 +1,12 @@
 import StudyAssistant from "@/components/study-assistant";
 import Link from "next/link";
-import { courses } from "@/lib/courses";
+import { listDriveCourses } from "@/lib/drive";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const library = await listDriveCourses().catch(() => ({ configured: true as const, courses: [] }));
+  const years = [...new Set(library.courses.map((course) => course.year))];
   return (
     <main>
       <header className="site-header">
@@ -18,13 +22,14 @@ export default function Home() {
       </section>
 
       <section className="courses" id="courses">
-        <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Synced from KTH / År 1–2</p></div>
-        {[1, 2].map((year) => <div className="course-year" key={year}>
+        <div className="section-heading"><div><p className="eyebrow">Drive library</p><h2>Your courses</h2></div><p>Live from GoodNotes / KTH</p></div>
+        {years.map((year) => <div className="course-year" key={year}>
           <h3>År {year}</h3>
           <div className="course-grid">
-            {courses.filter((course) => course.year === year).map((course) => <Link className="course-card" href={`/courses/${course.code}?year=${course.year}`} key={`${course.year}-${course.code}`}><span>År {course.year}</span><h3>{course.code}</h3><p>{course.name || "Goodnotes PDFs and lecture material"}</p><div>Open course <b>→</b></div></Link>)}
+            {library.courses.filter((course) => course.year === year).map((course) => <Link className="course-card" href={`/courses/${course.driveFolderId}`} key={course.driveFolderId}><span>År {course.year} · Drive folder</span><h3>{course.code}</h3><p>{course.name}</p><div>Open course <b>→</b></div></Link>)}
           </div>
         </div>)}
+        {library.courses.length === 0 && <div className="drive-empty"><h3>{library.configured ? "No course folders found" : "Drive connection is not configured"}</h3><p>{library.configured ? "Add course folders inside GoodNotes / KTH / År 1, År 2, and so on." : "The Google service-account credential is missing."}</p></div>}
       </section>
 
       <section className="assistant-section" id="assistant">
