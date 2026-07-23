@@ -7,6 +7,11 @@ const defaultRootFolderId = "1NbDwLmoYjPtEZQNQbU93IZDOsTcUYGq8";
 const excludedFolders = new Set((process.env.DRIVE_EXCLUDED_FOLDERS || "Inlämningar,-private").split(",").map((name) => name.trim().toLowerCase()).filter(Boolean));
 
 export type CourseNote = { id: string; name: string; path: string; modifiedTime: string; size: number | null; url: string };
+export type CourseFolder = { id: string; name: string; path: string; folders: CourseFolder[]; notes: CourseNote[] };
+
+function byName(a: { name: string }, b: { name: string }) {
+  return a.name.localeCompare(b.name, "sv", { numeric: true, sensitivity: "base" });
+}
 
 function createDriveClient() {
   const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -59,23 +64,34 @@ export async function getDriveCourse(folderId: string) {
   return library.courses.find((course) => course.driveFolderId === folderId) || null;
 }
 
-async function walk(drive: drive_v3.Drive, folderId: string, path: string[] = []): Promise<CourseNote[]> {
-  const notes: CourseNote[] = [];
-  for (const item of await listChildren(drive, folderId)) {
-    if (!item.id || !item.name) continue;
-    if (item.mimeType === folderMimeType) {
-      if (!excludedFolders.has(item.name.toLowerCase())) notes.push(...await walk(drive, item.id, [...path, item.name]));
-    } else if (item.mimeType === "application/pdf" && item.modifiedTime) {
-      notes.push({ id: item.id, name: item.name, path: [...path, item.name].join(" / "), modifiedTime: item.modifiedTime, size: item.size ? Number(item.size) : null, url: `https://drive.google.com/file/d/${item.id}/view` });
-    }
-  }
-  return notes;
+async function readFolder(drive: drive_v3.Drive, folderId: string, name: string, path: string[] = []): Promise<CourseFolder> {
+  const children = await listChildren(drive, folderId);
+  const folderItems = children.filter((item) => item.id && item.name && item.mimeType === folderMimeType && !excludedFolders.has(item.name.toLowerCase()));
+  const folders = await Promise.all(folderItems.map((item) => readFolder(drive, item.id!, item.name!, [...path, item.name!])));
+  const notes = children
+    .filter((item) => item.id && item.name && item.mimeType === "application/pdf" && item.modifiedTime)
+    .map((item) => ({
+      id: item.id!,
+      name: item.name!,
+      path: [...path, item.name!].join(" / "),
+      modifiedTime: item.modifiedTime!,
+      size: item.size ? Number(item.size) : null,
+      url: `https://drive.google.com/file/d/${item.id}/view`,
+    }))
+    .sort(byName);
+
+  folders.sort(byName);
+  return { id: folderId, name, path: path.join(" / "), folders, notes };
+}
+
+function flattenFolder(folder: CourseFolder): CourseNote[] {
+  return [...folder.notes, ...folder.folders.flatMap(flattenFolder)];
 }
 
 export async function listCourseNotes(course: Course) {
   const drive = createDriveClient();
-  if (!drive) return { configured: false as const, notes: [] };
-  const notes = await walk(drive, course.driveFolderId);
-  notes.sort((a, b) => a.path.localeCompare(b.path, "sv"));
-  return { configured: true as const, notes };
+  if (!drive) return { configured: false as const, notes: [], folders: [], rootNotes: [] };
+  const root = await readFolder(drive, course.driveFolderId, course.name);
+  const notes = flattenFolder(root);
+  return { configured: true as const, notes, folders: root.folders, rootNotes: root.notes };
 }
